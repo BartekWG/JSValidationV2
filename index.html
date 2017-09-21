@@ -5,112 +5,260 @@
     <title>Formularz - Walidacja JS</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <style>
+        .bad {
+            border: 3px solid red;
+        }
+        .good {
+            border: 3px solid green;
+        }
+        .hide {
+            display: none;
+        }
+        .show {
+            display: block;
+        }
+        .alert {
+            background: red;
+            color: black;
+            text-align: center;
+        }
+        /*[data-validation-error]:after{*/
+            /*content: attr(data-validation-error);*/
+            /*display:block;*/
+        /*}*/
+    </style>
 </head>
 <body>
-<div class="container">
+<div class="container-fluid" style="background: lightgray">
     <div class="formDiv">
         <h2>Please provide your details below</h2>
         <hr>
-        <form name="formularz" onsubmit="return fselect()">
-            <div class="form-group">
+        <form name="formularz" onsubmit="return fsubject()">
+            <div class="form-group"> <!-- data-validation-error="error" - to wpisujemy do tego elementu jako atrybut -->
                 <label for="name">Your name and surname: </label>
                 <input type="text" class="form-control" id="name" placeholder="Enter your name" name="name"
                         required>
+                <div class="alert" id="nameAlert">
+                    <p>Niewłaściwy format! Wpisz np.: Jan Kowalski lub Jan Maria-Kowalski</p>
+                </div>
             </div>
             <div class="form-group">
                 <label for="email">Email: </label>
                 <input type="text" class="form-control" id="email" placeholder="Enter your email" name="email"
                         required>
+                <div class="alert" id="emailAlert">
+                    <p>Niewłaściwy format! Wpisz np.: adres@email.pl</p>
+                </div>
             </div>
             <div class="form-group">
                 <label for="name">Phone: </label>
                 <input type="text" class="form-control" id="phone" placeholder="Enter your phone" name="phone"
-                       onchange="fphone(this)" required>
+                        required>
+                <div class="alert" id="phoneAlert">
+                    <p>Niewłaściwy format! Wpisz np.: 123-456-789</p>
+                </div>
             </div>
             <div class="form-group">
                 <label for="subject">Subject: </label>
-                <select class="custom-select w-100" id="subject" name="subject" onchange="fselect()" required>
+                <select class="custom-select w-100" id="subject" name="subject" required>
                     <option selected disabled hidden value="">Choose from list!</option>
                     <option value="suggestion">Send us your suggestion</option>
                     <option value="complaint">Send us your complaint</option>
                 </select>
+                <div class="alert" id="subjectAlert">
+                    <p>Porszę wybrać z listy temat!</p>
+                </div>
             </div>
             <div class="form-group">
                 <label for="message">Message: </label>
                 <textarea class="form-control" name="message" id="message" placeholder="Type your message here..."
                           rows="3" maxlength="1000" required></textarea>
+                <div class="alert" id="messageAlert">
+                    <p>Wpisz swoją wiadomość!</p>
+                </div>
             </div>
             <button type="submit" class="btn btn-default" value="submit">Submit</button>
         </form>
+        <hr>
     </div>
 </div>
 
 <script type="text/javascript">
     "use strict";
     (function(){
-        function fselect() {
-            if (document.formularz.subject.value === "") {
-                alert("Choose subject from list!");
-                document.formularz.subject.focus();
-                return false;
+        const alertBoxes = document.querySelectorAll(".alert");
+        console.log(alertBoxes);
+        for (let i=0; i<alertBoxes.length; i++){
+            if (alertBoxes[i].classList.contains("show") === true) {
+                alertBoxes[i].classList.remove("show");
             }
+            alertBoxes[i].classList.add("hide");
         }
 
         function fname(event) {
             console.log(event);
             let name = document.formularz.name.value;
-            let pattern = /^[A-Z]{1}[a-z]{2,15} (([A-Z]{1}[a-z]{2,20}-[A-Z]{1}[a-z]{2,20})|([A-Z]{1}[a-z]{2,20}))$/;
+            let pattern = /^[A-Z][a-z]{2,15} (([A-Z][a-z]{2,20}-[A-Z][a-z]{2,20})|([A-Z][a-z]{2,20}))$/;
+            let alertBox = document.getElementById("nameAlert");
 
             if (!pattern.test(name)) {
-                this.style.border = '3px solid red';
-                alert("Niewłaściwy format! Format właściwy: Jan Kowalski lub Jan Maria-Kowalski");
-                this.value = "";
-//                    document.formularz.name.focus();
+                if (this.classList.contains("good") === true) {
+                    this.classList.remove("good");
+                }
+                this.classList.add("bad");
+
+//              Alert
+                if (alertBox.classList.contains("hide") === true) {
+                    alertBox.classList.remove("hide");
+                }
+                alertBox.classList.add("show");
+
                 return false;
             } else {
-                this.style.border = '3px solid green';
+                if (this.classList.contains("bad") === true) {
+                    this.classList.remove("bad");
+                }
+                this.classList.add("good");
+
+//              Alert remove
+                if (alertBox.classList.contains("show") === true) {
+                    alertBox.classList.remove("show");
+                }
+                alertBox.classList.add("hide");
             }
         }
 
-        function femail(el) {
+        function femail(event) {
             let email = document.formularz.email.value;
-            let pattern = /^[0-9a-z]{1}([0-9a-z])*\.?([0-9a-z])*@([0-9a-z])+\.([0-9a-z])+$/;
+            let pattern = /^[0-9a-z]([0-9a-z])*\.?([0-9a-z])*@([0-9a-z])+\.([0-9a-z])+$/;
+            let alertBox = document.getElementById("emailAlert");
 
             if (!pattern.test(email)) {
-                el.style.border = '3px solid red';
-                alert("Niewłaściwy format email!");
-                document.getElementById("email").value = "";
-                document.formularz.email.focus();
+                if (this.classList.contains("good") === true) {
+                    this.classList.remove("good");
+                }
+                this.classList.add("bad");
+
+                //              Alert
+                if (alertBox.classList.contains("hide") === true) {
+                    alertBox.classList.remove("hide");
+                }
+                alertBox.classList.add("show");
+
                 return false;
             } else {
-                el.style.border = '3px solid green';
+                if (this.classList.contains("bad") === true) {
+                    this.classList.remove("bad");
+                }
+                this.classList.add("good");
+
+                //              Alert remove
+                if (alertBox.classList.contains("show") === true) {
+                    alertBox.classList.remove("show");
+                }
+                alertBox.classList.add("hide");
             }
         }
 
-        function fphone(el) {
+        function fphone(event) {
             let phone = document.formularz.phone.value;
-            let pattern = /^\d{9}$/;
+            let pattern = /^\d{3}-\d{3}-\d{3}$/;
+            let alertBox = document.getElementById("phoneAlert");
 
             if (!pattern.test(phone)) {
-                el.style.border = '3px solid red';
-                alert("Niewłaściwy format!");
-                document.getElementById("phone").value = "";
-                document.formularz.phone.focus();
+                if (this.classList.contains("good") === true) {
+                    this.classList.remove("good");
+                }
+                this.classList.add("bad");
+
+                //              Alert
+                if (alertBox.classList.contains("hide") === true) {
+                    alertBox.classList.remove("hide");
+                }
+                alertBox.classList.add("show");
+
                 return false;
             } else {
-                el.style.border = '3px solid green';
+                if (this.classList.contains("bad") === true) {
+                    this.classList.remove("bad");
+                }
+                this.classList.add("good");
+
+                //              Alert remove
+                if (alertBox.classList.contains("show") === true) {
+                    alertBox.classList.remove("show");
+                }
+                alertBox.classList.add("hide");
             }
         }
 
+        function fsubject(event) {
+            let alertBox = document.getElementById("subjectAlert");
 
+            if (document.formularz.subject.value === "") {
+                if (this.classList.contains("good") === true) {
+                    this.classList.remove("good");
+                }
+                this.classList.add("bad");
+
+                //              Alert
+                if (alertBox.classList.contains("hide") === true) {
+                    alertBox.classList.remove("hide");
+                }
+                alertBox.classList.add("show");
+
+                return false;
+            } else {
+                if (this.classList.contains("bad") === true) {
+                    this.classList.remove("bad");
+                }
+                this.classList.add("good");
+
+                //              Alert remove
+                if (alertBox.classList.contains("show") === true) {
+                    alertBox.classList.remove("show");
+                }
+                alertBox.classList.add("hide");
+            }
+        }
+
+        function fmessage(event) {
+            let alertBox = document.getElementById("messageAlert");
+
+            if (document.formularz.message.value === "") {
+                if (this.classList.contains("good") === true) {
+                    this.classList.remove("good");
+                }
+                this.classList.add("bad");
+
+                //              Alert
+                if (alertBox.classList.contains("hide") === true) {
+                    alertBox.classList.remove("hide");
+                }
+                alertBox.classList.add("show");
+
+                return false;
+            } else {
+                if (this.classList.contains("bad") === true) {
+                    this.classList.remove("bad");
+                }
+                this.classList.add("good");
+
+                //              Alert remove
+                if (alertBox.classList.contains("show") === true) {
+                    alertBox.classList.remove("show");
+                }
+                alertBox.classList.add("hide");
+            }
+        }
+        
         document.getElementById("name").addEventListener('change', fname);
-//        window.addEventListener('DOMContentLoaded', function() {
-//            const elements = document.querySelector('#name');
-//
-//            for (let i=0; i<elements.length; i++){
-//                elements[i].addEventListener('blur', fname);
-//            }
-//        });
+        document.getElementById("email").addEventListener('change', femail);
+        document.getElementById("phone").addEventListener('change', fphone);
+        document.getElementById("subject").addEventListener('blur', fsubject);
+        document.getElementById("message").addEventListener('blur', fmessage);
+
     })();
 </script>
 </body>
